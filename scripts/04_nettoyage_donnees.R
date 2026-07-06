@@ -167,8 +167,32 @@ registre_qualite <- tibble(
   ),
   statut = c("Résolu", "Résolu", "Résolu", "À surveiller")
 )
-
 registre_qualite
 write_csv(registre_qualite,"outputs/anomalies/registre_qualite_donnees.csv")
-
 message("Registre de qualité des données créé.")
+
+
+
+# ------------- Validation finale des données nettoyées -----
+
+
+# Dimensions
+dim(open_medic_clean)
+# Structure
+glimpse(open_medic_clean)
+
+# Valeurs négatives restantes
+open_medic_clean |>
+  summarise(boites_neg = sum(boites < 0),
+    remboursement_neg = sum(remboursement < 0),
+    base_remboursement_neg = sum(base_remboursement < 0) )
+# Valeurs manquantes
+open_medic_clean |>
+  summarise(across(everything(), ~sum(is.na(.)))) |>
+  pivot_longer(
+    everything(),
+    names_to = "variable",
+    values_to = "nb_na") |>
+  arrange(desc(nb_na))
+
+message("Validation finale terminée.")
