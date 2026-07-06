@@ -138,10 +138,11 @@ anomalies
 # --------------- Journal des anomalies détectées ------------------
 
 dir.create("outputs/anomalies", recursive = TRUE, showWarnings = FALSE)
-anomalies <- tibble(
+registre_qualite <- tibble(
+  id = c("AQ-001", "AQ-002", "AQ-003", "AQ-004"),
   anomalie = c(
     "Valeurs négatives",
-    "Doublons dans le dictionnaire CIP13",
+    "Doublons du dictionnaire CIP13",
     "Modalités inconnues",
     "REM supérieur à BSE"
   ),
@@ -155,11 +156,21 @@ anomalies <- tibble(
     coherence_metier$rem_superieur_bse
   ),
   decision = c(
-    "Supprimées pour l'analyse descriptive",
-    "Dernier libellé conservé lors de la préparation",
-    "Conservées et harmonisées sous la modalité 'Inconnu'",
-    "Conservées pour analyse complémentaire"
-  )
+    "Supprimées",
+    "Dernier libellé conservé",
+    "Conservées",
+    "Conservées"
+  ),
+  justification = c(
+    "Régularisations ; impact inférieur à 0,01 %",
+    "Historique probable des dénominations commerciales",
+    "Information absente mais exploitable",
+    "Probables effets d'agrégation ou d'arrondis"
+  ),
+  statut = c("Résolu", "Résolu", "Résolu", "À surveiller")
 )
-write_csv(anomalies, "outputs/anomalies/journal_anomalies.csv")
-anomalies
+
+registre_qualite
+write_csv(registre_qualite,"outputs/anomalies/registre_qualite_donnees.csv")
+
+message("Registre de qualité des données créé.")
