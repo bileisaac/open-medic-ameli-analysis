@@ -133,8 +133,6 @@ anomalies <- tibble(
 anomalies
 
 
-
-
 # --------------- Journal des anomalies détectées ------------------
 
 dir.create("outputs/anomalies", recursive = TRUE, showWarnings = FALSE)
