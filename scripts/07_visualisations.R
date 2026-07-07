@@ -551,32 +551,22 @@ treemap_atc <- open_medic_features |>
     .groups = "drop") |>
   filter(!is.na(lib_atc1)) |>
   mutate(part = remboursement_total / sum(remboursement_total) * 100,
-    etiquette = paste0(
-      lib_atc1, "\n",
-      label_number(scale_cut = cut_short_scale(), accuracy = 0.1)(remboursement_total),
-      " €", "\n",
-      round(part, 1), " %"))
+    etiquette = paste0(lib_atc1, "\n",label_number(scale_cut = cut_short_scale(), accuracy = 0.1)(remboursement_total),
+      " €", "\n",round(part, 1), " %"))
 
 fig_10_treemap_atc <- ggplot(
   treemap_atc,
   aes(area = remboursement_total,fill = lib_atc1,label = etiquette)) +
   geom_treemap(colour = "white",linewidth = 1) +
-  geom_treemap_text(
-    colour = "white",
-    place = "centre",
+  geom_treemap_text(colour = "white",place = "centre",
     grow = FALSE,
-    reflow = TRUE,
-    size = 10,
-    fontface = "bold",
-    min.size = 4
-  ) +
+    reflow = TRUE,size = 10,fontface = "bold", min.size = 4) +
   scale_fill_manual(
     values = c(
       "#2563EB", "#14B8A6", "#F59E0B", "#DC2626",
       "#7C3AED", "#0891B2", "#65A30D", "#EA580C",
       "#DB2777", "#4F46E5", "#0F766E", "#9333EA",
-      "#475569", "#CA8A04"
-    )) +
+      "#475569", "#CA8A04")) +
   labs(
     title = "Quelles classes thérapeutiques concentrent les remboursements ?",
     subtitle = "Répartition des remboursements par grande classe ATC",
@@ -586,15 +576,12 @@ fig_10_treemap_atc <- ggplot(
     plot.subtitle = element_text(size = 12, color = "#4B5563"),
     plot.caption = element_text(size = 9, color = "#6B7280"),
     legend.position = "none",
-    plot.background = element_rect(fill = "white", color = NA)
-  )
+    plot.background = element_rect(fill = "white", color = NA))
 
 fig_10_treemap_atc
-
 ggsave("outputs/figures/fig_10_treemap_atc.png",
   fig_10_treemap_atc,
   width = 13,height = 8,dpi = 300)
-
 
 treemap_atc <- open_medic_features |>
   group_by(lib_atc1) |>
@@ -604,10 +591,7 @@ treemap_atc <- open_medic_features |>
 fig_10_treemap_atc <- ggplot(
   treemap_atc,
   aes( area = remboursement_total,fill = remboursement_total, label = lib_atc1)) +
-  geom_treemap(
-    colour = "white",
-    linewidth = 1
-  ) +
+  geom_treemap(colour = "white",linewidth = 1) +
   geom_treemap_text(
     colour = "white",
     place = "centre",
@@ -619,63 +603,101 @@ fig_10_treemap_atc <- ggplot(
     low = "#BFDBFE",
     high = couleur_primaire,
     labels = label_number(scale_cut = cut_short_scale())) +
-  labs(
-    title = "Les dépenses se concentrent sur quelques classes thérapeutiques",
+  labs(title = "Les dépenses se concentrent sur quelques classes thérapeutiques",
     subtitle = "Répartition des remboursements selon les classes ATC de niveau 1",
     fill = "Remboursement (€)",
     caption = "Source : Open Medic AMELI 2025") +
   theme_open_medic()
 fig_10_treemap_atc
-ggsave(
-  "outputs/figures/fig_10_treemap_atc.png",
+ggsave("outputs/figures/fig_10_treemap_atc.png",
   fig_10_treemap_atc,
-  width = 12,
-  height = 8,
-  dpi = 300
-)
+  width = 12,height = 8,dpi = 300)
 
 
-
-#====== Quelles tranches d'âge concentrent les remboursements ? =====
+# ============== Remboursements par tranche d'âge et sexe =========
 
 # Question métier :
-# Quelles tranches d'âge concentrent les montants remboursés les plus élevés ?
+# Les remboursements diffèrent-ils selon l'âge et le sexe ?
 
 
-age_remboursement <- open_medic_features |>
-  group_by(tranche_age) |>
-  summarise(remboursement_total = sum(remboursement, na.rm = TRUE),
-    .groups = "drop") |>
-  mutate(part = remboursement_total / sum(remboursement_total) * 100,
+age_sexe <- open_medic_features |>
+  group_by(tranche_age, sexe) |>
+  summarise(
+    remboursement_total = sum(remboursement, na.rm = TRUE),
+    .groups = "drop"
+  ) |>
+  mutate(
+    part = remboursement_total / sum(remboursement_total) * 100,
     etiquette = paste0(
-      label_number(scale_cut = cut_short_scale(), accuracy = 0.1)(remboursement_total),
-      " €\n",
-      round(part, 1), " %"),
-    tranche_age = fct_reorder(tranche_age, remboursement_total))
-fig_11_remboursement_age <- ggplot(age_remboursement,
-  aes(x = tranche_age, y = 1, fill = remboursement_total)) +
-  geom_tile(color = "white", linewidth = 1.2) +
-  geom_text(aes(label = etiquette),
-    color = "white",fontface = "bold",size = 4) +
-  scale_fill_gradient(
-    low = "#BFDBFE",
-    high = couleur_primaire,
-    labels = label_number(scale_cut = cut_short_scale())) +
-  labs(title = "Quelles tranches d'âge concentrent les remboursements ?",
-    subtitle = "Montant total remboursé et part dans le total",
-    x = NULL,y = NULL,
-    fill = "Remboursement",
-    caption = "Source : Open Medic AMELI 2025") +
-  theme_open_medic() +
-  theme(axis.text.y = element_blank(),
-    axis.ticks = element_blank(),
-    legend.position = "bottom",
-    panel.grid = element_blank()
+      scales::label_number(
+        scale_cut = cut_short_scale(),
+        accuracy = 0.1
+      )(remboursement_total),
+      " €",
+      "\n",
+      round(part, 1),
+      " %"
+    )
   )
-fig_11_remboursement_age
-ggsave("outputs/figures/fig_11_remboursement_age.png",
-  fig_11_remboursement_age,
-  width = 12,height = 5,dpi = 300)
+
+fig_11_remboursement_age_sexe <- ggplot(
+  age_sexe,
+  aes(
+    x = tranche_age,
+    y = sexe,
+    fill = remboursement_total
+  )
+) +
+  
+  geom_tile(
+    colour = "white",
+    linewidth = 1
+  ) +
+  
+  geom_text(
+    aes(label = etiquette),
+    colour = "white",
+    fontface = "bold",
+    size = 3.6
+  ) +
+  
+  scale_fill_gradient(
+    low = "#DBEAFE",
+    high = couleur_primaire,
+    labels = label_number(scale_cut = cut_short_scale())
+  ) +
+  
+  labs(
+    title = "Comment les remboursements se répartissent-ils selon l'âge et le sexe ?",
+    subtitle = "Montant remboursé et part dans le total pour chaque combinaison âge × sexe",
+    x = "Tranche d'âge",
+    y = NULL,
+    fill = "Montant remboursé",
+    caption = "Source : Open Medic AMELI 2025"
+  ) +
+  
+  theme_open_medic() +
+  
+  theme(
+    axis.text.x = element_text(
+      angle = 30,
+      hjust = 1,
+      face = "bold"
+    ),
+    axis.text.y = element_text(face = "bold"),
+    panel.grid = element_blank(),
+    legend.position = "bottom"
+  )
+
+fig_11_remboursement_age_sexe
+
+ggsave(
+  "outputs/figures/fig_11_remboursement_age_sexe.png",
+  fig_11_remboursement_age_sexe,
+  width = 13,
+  height = 6,
+  dpi = 300
+)
 
 
 #==== Quels médicaments ont un fort impact budgétaire malgré un faible volume ? ===
