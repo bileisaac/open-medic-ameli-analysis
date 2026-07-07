@@ -13,6 +13,7 @@ stopifnot(file.exists(path_data))
 open_medic_clean <- readRDS(path_data)
 glimpse(open_medic_clean)
 message("Données nettoyées chargées.")
+open_medic_features <- open_medic_clean
 
 # ============= Taux de remboursement ==============
 # Question métier :
