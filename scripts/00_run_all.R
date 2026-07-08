@@ -86,11 +86,8 @@ source("scripts/05_analyse_exploratoire.R")
 source("scripts/06_feature_engineering.R")
 source("scripts/07_visualisations.R")
 
-###############################################################################
-# 3. Génération du rapport
-###############################################################################
-library(stringr)
-source("config.R")
+
+# ============ Génération du rapport ===========
 
 
 dir.create("docs", recursive = TRUE, showWarnings = FALSE)
@@ -100,4 +97,10 @@ rmarkdown::render(
   output_dir = dirname(path_report),
   output_file = basename(path_report)
 )
+
+
+# ========Création d'un alias vers le dernier rapport ==========
+
+file.copy(from = path_report, to = file.path("docs", "article_open_medic.html"), overwrite = TRUE)
+message("Alias du dernier rapport créé.")
 message("Pipeline terminé avec succès.")
