@@ -40,6 +40,7 @@ jobs:
             any::knitr
             any::stringr
             any::glue
+            any::pagedown
 
       - name: Run Open Medic pipeline
         run: Rscript scripts/00_run_all.R
