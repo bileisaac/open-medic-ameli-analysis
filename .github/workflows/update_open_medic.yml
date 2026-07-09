@@ -42,6 +42,9 @@ jobs:
             any::glue
             any::pagedown
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+
       - name: Run Open Medic pipeline
         run: Rscript scripts/00_run_all.R
 
